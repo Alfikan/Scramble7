@@ -1,0 +1,208 @@
+.page {
+  min-height: calc(100vh - var(--navbar-height));
+  padding-block: var(--space-10);
+  background: var(--color-bg);
+}
+
+.inner {
+  max-width: 640px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── Score card ───────────────────────────────────────────── */
+.scoreCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding-block: var(--space-4);
+}
+
+.trophyWrap {
+  color: var(--color-warning);
+  margin-bottom: var(--space-2);
+}
+
+.quizTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.scoreLabel {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+}
+
+.scoreFraction {
+  line-height: 1;
+  margin-block: var(--space-2);
+}
+
+.scoreNum {
+  font-size: var(--text-5xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.03em;
+}
+
+.scoreDenom {
+  font-size: var(--text-2xl);
+  color: var(--color-text-muted);
+  font-weight: var(--font-medium);
+}
+
+.scorePct {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+}
+
+.scoreMeta {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.scoreChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.scoreChipWrong {
+  background: var(--color-error-light);
+  color: var(--color-error);
+}
+
+/* ── Save error ───────────────────────────────────────────── */
+.saveError {
+  font-size: var(--text-sm);
+  color: var(--color-error);
+  background: var(--color-error-light);
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* ── Breakdown section ────────────────────────────────────── */
+.breakdownTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.breakdownItem {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.breakdownStatus {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.correctIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.wrongIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.breakdownContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.breakdownQ {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  line-height: var(--leading-normal);
+}
+
+.qNum {
+  color: var(--color-text-muted);
+  font-weight: var(--font-normal);
+}
+
+.yourAnswer,
+.correctAnswer {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.wrongText {
+  color: var(--color-error);
+  font-weight: var(--font-medium);
+}
+
+.correctText {
+  color: var(--color-success);
+  font-weight: var(--font-medium);
+}
+
+.explanation {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-border-strong);
+}
+
+/* ── Actions ──────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding-bottom: var(--space-6);
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding-block: var(--space-6);
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+}

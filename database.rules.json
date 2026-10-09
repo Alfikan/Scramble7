@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "presence": {
+      "$userId": {
+        // Any authenticated user can read presence (needed to show online status to room members)
+        ".read": "auth != null",
+
+        // Users can only write their own presence node
+        ".write": "auth != null && auth.uid === $userId"
+      }
+    }
+  }
+}

@@ -1,0 +1,121 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ───────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Uses get() to avoid circular rule evaluation with exists()
+    function isMember(roomId) {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/rooms/$(roomId)/members/$(request.auth.uid)).data != null;
+    }
+
+    // ── Users ─────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read:           if isAuthenticated();
+      allow create, update: if isOwner(userId);
+      allow delete:         if false;
+    }
+
+    // ── Rooms ─────────────────────────────────────────────────
+    match /rooms/{roomId} {
+      allow list:           if isAuthenticated();
+      allow get:            if isMember(roomId);
+      allow create:         if isAuthenticated() &&
+                               request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAuthenticated() &&
+                               resource.data.ownerId == request.auth.uid;
+
+      // ── Members subcollection ──────────────────────────────
+      match /members/{userId} {
+        allow read:   if isAuthenticated();
+        allow create: if isOwner(userId);
+        allow delete: if isOwner(userId);
+        allow update: if false;
+      }
+
+      // ── Messages subcollection ─────────────────────────────
+      match /messages/{messageId} {
+        allow read: if isMember(roomId);
+
+        allow create: if isMember(roomId)
+          && request.resource.data.senderId   == request.auth.uid
+          && request.resource.data.senderName is string
+          && request.resource.data.senderName.size() > 0
+          && request.resource.data.text       is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 500;
+
+        allow update: if false;
+
+        allow delete: if isAuthenticated() &&
+                         resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    // ── Quizzes ────────────────────────────────────────────────
+    match /quizzes/{quizId} {
+      allow read: if isAuthenticated() &&
+                     isMember(resource.data.roomId);
+
+      allow create: if isAuthenticated() &&
+                       request.resource.data.createdBy == request.auth.uid &&
+                       isMember(request.resource.data.roomId);
+
+      allow update, delete: if false;
+
+      // ── Results subcollection (single-document access) ─────
+      //
+      // Covers direct reads: getDoc(quizzes/{quizId}/results/{userId})
+      //
+      // Two cases:
+      //   1. User reads their own result (dashboard, QuizCard "Completed" check).
+      //   2. A room member reads all results in a quiz (leaderboard).
+      match /results/{userId} {
+        allow read: if isOwner(userId) ||
+                       (isAuthenticated() &&
+                        isMember(get(/databases/$(database)/documents/quizzes/$(quizId)).data.roomId));
+
+        allow create: if isOwner(userId) &&
+                         request.resource.data.userId == request.auth.uid;
+
+        allow update: if isOwner(userId) &&
+                         request.resource.data.userId == request.auth.uid;
+
+        allow delete: if false;
+      }
+    }
+
+    // ── CollectionGroup: results (query access) ────────────────
+    //
+    // Covers the Dashboard collectionGroup query:
+    //   collectionGroup('results')
+    //     .where('userId', '==', currentUser.uid)
+    //     .orderBy('completedAt', 'desc')
+    //
+    // For a collectionGroup query Firestore evaluates whether the query
+    // is guaranteed to satisfy the rule for EVERY potentially matched doc.
+    // The query filters by resource.data.userId == request.auth.uid,
+    // so Firestore can prove the rule is satisfied for all returned docs.
+    //
+    // IMPORTANT: we check resource.data.userId (the FIELD), not the path
+    // wildcard. This is the key that makes the query authorizable.
+    //
+    // Security: only the authenticated user can read documents where
+    // data.userId equals their own UID. This is strictly their own results.
+    match /{path=**}/results/{resultId} {
+      allow read: if isAuthenticated() &&
+                     resource.data.userId == request.auth.uid;
+    }
+
+  }
+}
